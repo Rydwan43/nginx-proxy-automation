@@ -3,11 +3,9 @@ services:
   example:
     image: nginx:alpine
     ports:
-      - "8081:8055"
+      - "8081:80"
     volumes:
-      - ./html:/usr/share/nginx/html
-    ports:
-      - "80:80"
+      - ./example1:/usr/share/nginx/html
     environment:
       VIRTUAL_HOST: example.com,www.example.com
       LETSENCRYPT_HOST: example.com,www.example.com
@@ -18,11 +16,9 @@ services:
   secondExample:
     image: nginx:alpine
     ports:
-      - "8081:8055"
+      - "8082:80"
     volumes:
-      - ./html:/usr/share/nginx/html
-    ports:
-      - "80:80"
+      - ./example2:/usr/share/nginx/html
     environment:
       VIRTUAL_HOST: secondexample.com,www.secondexample.com
       LETSENCRYPT_HOST: secondexample.com,www.secondexample.com
