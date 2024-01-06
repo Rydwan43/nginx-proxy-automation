@@ -1,0 +1,65 @@
+version: "3"
+services:
+  example:
+    image: nginx:alpine
+    ports:
+      - "8081:8055"
+    volumes:
+      - ./html:/usr/share/nginx/html
+    ports:
+      - "80:80"
+    environment:
+      VIRTUAL_HOST: example.com,www.example.com
+      LETSENCRYPT_HOST: example.com,www.example.com
+    tty: true
+    stdin_open: true
+    networks:
+      - nginx-proxy
+  secondExample:
+    image: nginx:alpine
+    ports:
+      - "8081:8055"
+    volumes:
+      - ./html:/usr/share/nginx/html
+    ports:
+      - "80:80"
+    environment:
+      VIRTUAL_HOST: secondexample.com,www.secondexample.com
+      LETSENCRYPT_HOST: secondexample.com,www.secondexample.com
+    tty: true
+    stdin_open: true
+    networks:
+      - nginx-proxy
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - /var/docker/nginx/html:/usr/share/nginx/html
+      - /var/docker/nginx/certs:/etc/nginx/certs
+      - /var/docker/nginx/vhost:/etc/nginx/vhost.d
+      - ./increase-upload-size.conf:/etc/nginx/conf.d/increase-upload-size.conf
+      # You can add configuration files for nginx here
+    networks:
+      - nginx-proxy
+  letsencrypt-companion:
+    container_name: letsencrypt-companion
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    restart: unless-stopped
+    volumes_from:
+        - nginx-proxy
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /var/docker/nginx/acme:/etc/acme.sh
+    environment:
+        DEFAULT_EMAIL: yourEmail@mail.com
+    networks:
+      - nginx-proxy
+networks:
+  nginx-proxy:
+    external: true
+
+
+    
